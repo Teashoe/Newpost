@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "newposts",
+  "version": "${version}",
+  "name": "Newposts",
+  "description": "스티브 갤러리에 새로운 글이 올라오면 채팅창에 알림",
+  "authors": [
+    "Teashoe"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "com.teashoe.newposts.client.NewpostsClient"
+    ],
+    "client": [
+      "com.teashoe.newposts.Newposts"
+    ]
+  },
+  "mixins": [
+    "newposts.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric": "*",
+    "minecraft": ">=${minecraft_version}"
+  }
+}

@@ -17,6 +17,9 @@
     ],
     "client": [
       "com.teashoe.newposts.Newposts"
+    ],
+    "modmenu": [
+      "com.teashoe.newposts.NewpostsModMenuIntegration"
     ]
   },
   "mixins": [
@@ -26,5 +29,8 @@
     "fabricloader": ">=${loader_version}",
     "fabric": "*",
     "minecraft": ">=${minecraft_version}"
+  },
+  "recommends": {
+    "cloth-config2": ">=11.1.118"
   }
 }

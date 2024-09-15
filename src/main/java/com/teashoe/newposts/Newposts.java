@@ -31,6 +31,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import me.shedaniel.autoconfig.AutoConfig;
+import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
+
 public class Newposts implements ClientModInitializer {
 
     private boolean newPostAlertEnabled = true;
@@ -39,6 +42,9 @@ public class Newposts implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
+        // 설정 파일을 등록하여 초기화
+        AutoConfig.register(ModConfig.class, GsonConfigSerializer::new);
+
         // 서버에 접속할 때 기존 게시물 목록을 초기화
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> initializePostNumbers());
 
@@ -52,9 +58,11 @@ public class Newposts implements ClientModInitializer {
     }
 
     private void initializePostNumbers() {
-        // 서버에 접속할 때 현재 게시물을 모두 읽어와서 currentPostNumbers에 추가
+        // 설정 파일에서 galleryId를 가져옴
+        String galleryId = ModConfig.get().galleryId; // 사용자 정의 값 사용
+        String url = "https://gall.dcinside.com/mgallery/board/lists?id=" + galleryId;
+
         try {
-            String url = "https://gall.dcinside.com/mgallery/board/lists?id=projectmx";
             Document document = Jsoup.connect(url).get();
             Elements postList = document.select(".ub-content.us-post");
 
@@ -67,12 +75,14 @@ public class Newposts implements ClientModInitializer {
         }
     }
 
-
     private void checkNewPosts(MinecraftClient client) {
         if (client.player == null) return; // 플레이어가 없으면 중지
 
+        // 설정 파일에서 galleryId를 가져옴
+        String galleryId = ModConfig.get().galleryId; // 사용자 정의 값 사용
+        String url = "https://gall.dcinside.com/mgallery/board/lists?id=" + galleryId;
+
         try {
-            String url = "https://gall.dcinside.com/mgallery/board/lists?id=steve";
             Document document = Jsoup.connect(url).get();
             Elements postList = document.select(".ub-content.us-post");
 
@@ -91,7 +101,7 @@ public class Newposts implements ClientModInitializer {
                     Text postDetails = Text.literal(title + " [" + author + "]")
                             .styled(style -> style
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
-                                            "https://gall.dcinside.com/mgallery/board/view/?id=steve&no=" + number))
+                                            "https://gall.dcinside.com/mgallery/board/view/?id=" + galleryId + "&no=" + number))
                                     .withHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, Text.literal("게시물 보기")))
                                     .withColor(Formatting.WHITE)
                             );

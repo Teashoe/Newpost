@@ -18,6 +18,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.text.MutableText;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
+import net.minecraft.util.ActionResult;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -44,6 +45,11 @@ public class Newposts implements ClientModInitializer {
     public void onInitializeClient() {
         // 설정 파일을 등록하여 초기화
         AutoConfig.register(ModConfig.class, GsonConfigSerializer::new);
+
+        AutoConfig.getConfigHolder(ModConfig.class).registerSaveListener((configHolder, newConfig) -> {
+            initializePostNumbers(); // 설정이 변경될 때마다 기존 게시물 목록 초기화
+            return ActionResult.SUCCESS;
+        });
 
         // 서버에 접속할 때 기존 게시물 목록을 초기화
         ClientPlayConnectionEvents.JOIN.register((handler, sender, client) -> initializePostNumbers());

@@ -8,6 +8,7 @@ import me.shedaniel.autoconfig.serializer.GsonConfigSerializer;
 @Config(name = "newposts")
 public class ModConfig implements ConfigData {
     public String galleryId = "steve"; // 기본값
+    public boolean useSystemChat = false;
 
     public static ModConfig get() {
         return AutoConfig.getConfigHolder(ModConfig.class).getConfig();

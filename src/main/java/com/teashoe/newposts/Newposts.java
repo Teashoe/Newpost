@@ -20,6 +20,9 @@ import net.minecraft.text.MutableText;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.minecraft.util.ActionResult;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -40,6 +43,7 @@ public class Newposts implements ClientModInitializer {
     private boolean newPostAlertEnabled = true;
     private final Set<String> currentPostNumbers = new HashSet<>();
     private final ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(); // 작업 스케줄러 추가
+    private static final Logger LOGGER = LoggerFactory.getLogger("newposts");
 
     @Override
     public void onInitializeClient() {
@@ -77,7 +81,7 @@ public class Newposts implements ClientModInitializer {
                 currentPostNumbers.add(number); // 기존 게시물 번호를 저장
             }
         } catch (IOException e) {
-            System.out.println("게시물을 초기화하는 중 오류가 발생했습니다: " + e.getMessage());
+            LOGGER.error("게시물을 초기화하는 중 오류가 발생했습니다: {}", e.getMessage());
         }
     }
 
@@ -99,11 +103,10 @@ public class Newposts implements ClientModInitializer {
                     String title = postElement.select(".gall_tit.ub-word").text();
                     String author = postElement.select(".gall_writer.ub-writer .nickname em").text();
 
-                    // "[새 게시물]" 부분을 노란색으로 설정하고 MutableText로 변환
+                    // MutableText로 "[새 게시물]"은 노란색으로 표시함
                     MutableText newPostPrefix = Text.literal("[새 게시물] ")
                             .styled(style -> style.withColor(Formatting.YELLOW));
 
-                    // 제목과 작성자 부분을 기본 색상으로 설정
                     Text postDetails = Text.literal(title + " [" + author + "]")
                             .styled(style -> style
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
@@ -112,19 +115,22 @@ public class Newposts implements ClientModInitializer {
                                     .withColor(Formatting.WHITE)
                             );
 
-                    // 두 텍스트를 결합
                     Text clickableMessage = newPostPrefix.append(postDetails);
 
-                    // 클라이언트 플레이어에게 메시지를 전송 (메인 스레드에서 실행해야 함)
-                    client.execute(() -> client.player.sendMessage(clickableMessage, false));
-                    client.player.playSound(SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                    // 클라이언트 플레이어에게 메시지를 전송
+                    client.execute(() -> {
+                        if (client.player != null) {
+                            boolean useSystemChat = AutoConfig.getConfigHolder(ModConfig.class).getConfig().useSystemChat;
+                            client.player.sendMessage(clickableMessage, useSystemChat);
+                            client.player.playSound(SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 1.0F, 1.0F);
+                        }
+                    });
                 }
             }
 
         } catch (IOException e) {
-            // 오류 메시지를 클라이언트 플레이어에게 전송
-            client.execute(() -> client.player.sendMessage(Text.literal("게시물을 가져오는 중 오류가 발생했습니다."), false));
-            e.printStackTrace();
+            // 오류 메시지를 로그에 출력
+            LOGGER.error("게시물을 가져오는 중 오류가 발생했습니다: {}", e.getMessage());
         }
     }
 }

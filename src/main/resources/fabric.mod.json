@@ -3,7 +3,7 @@
   "id": "newposts",
   "version": "${version}",
   "name": "Newposts",
-  "description": "스티브 갤러리에 새로운 글이 올라오면 채팅창에 알림",
+  "description": "Get notifications of new posts on dcinside",
   "authors": [
     "Teashoe"
   ],

@@ -1,5 +1,6 @@
 {
   "text.autoconfig.newposts.title": "Newposts",
   "text.autoconfig.newposts.option.galleryId": "Gallery ID",
-  "text.autoconfig.newposts.option.useSystemChat": "액션바에 표시"
+  "text.autoconfig.newposts.option.useSystemChat": "액션바에 표시",
+  "text.autoconfig.newposts.option.showIpAddress": "유동 IP 보기"
 }

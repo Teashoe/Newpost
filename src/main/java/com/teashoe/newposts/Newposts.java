@@ -102,12 +102,19 @@ public class Newposts implements ClientModInitializer {
                     currentPostNumbers.add(number);
                     String title = postElement.select(".gall_tit.ub-word").text();
                     String author = postElement.select(".gall_writer.ub-writer .nickname em").text();
+                    String dataIp = postElement.select(".gall_writer").attr("data-ip"); // data-ip 속성에서 값 가져오기
+
+                    // IP 주소 표시 여부에 따라 처리
+                    String authorWithIp = "[" + author + "]";
+                    if (!dataIp.isEmpty() && ModConfig.get().showIpAddress) {
+                        authorWithIp += " (" + dataIp + ")"; // 괄호 안에 IP 추가
+                    }
 
                     // MutableText로 "[새 게시물]"은 노란색으로 표시함
                     MutableText newPostPrefix = Text.literal("[새 게시물] ")
                             .styled(style -> style.withColor(Formatting.YELLOW));
 
-                    Text postDetails = Text.literal(title + " [" + author + "]")
+                    Text postDetails = Text.literal(title + " " + authorWithIp)
                             .styled(style -> style
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL,
                                             "https://gall.dcinside.com/mgallery/board/view/?id=" + galleryId + "&no=" + number))
@@ -120,7 +127,7 @@ public class Newposts implements ClientModInitializer {
                     // 클라이언트 플레이어에게 메시지를 전송
                     client.execute(() -> {
                         if (client.player != null) {
-                            boolean useSystemChat = AutoConfig.getConfigHolder(ModConfig.class).getConfig().useSystemChat;
+                            boolean useSystemChat = ModConfig.get().useSystemChat;
                             client.player.sendMessage(clickableMessage, useSystemChat);
                             client.player.playSound(SoundEvents.ENTITY_ARROW_HIT_PLAYER, SoundCategory.PLAYERS, 1.0F, 1.0F);
                         }
